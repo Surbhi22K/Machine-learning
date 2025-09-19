@@ -1,0 +1,26 @@
+#load dataset
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import classification_report, confusion_matrix
+scaler=StandardScaler()
+dataset=pd.read_csv(r"E:\loan.csv")
+dataset.head(2)
+# convert approved as 1 and denied as 0
+dataset["loan_status"]=dataset["loan_status"].map({'Approved':1,'Denied':0})
+#This will convert categorical columns into dummy variables (0/1).
+dataset=pd.get_dummies(dataset, drop_first=True)
+dataset
+x=dataset.drop('loan_status', axis=1)
+y=dataset['loan_status']
+#train test split
+x_train,x_test,y_train,y_test=train_test_split(x,y,test_size=0.2, random_state=42)
+#Scale features
+scale=StandardScaler()
+x_train=scaler.fit_transform(x_train)
+x_test=scaler.transform(x_test)
+#Train Logistic Regression model
+model=LogisticRegression(max_iter=1000)
+model.fit(x_train, y_train)
+y_pred=model.predict(x_test)
