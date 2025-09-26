@@ -1,0 +1,35 @@
+import numpy as np
+import pandas as pd
+from sklearn.preprocessing import LabelEncoder
+from sklearn.svm import SVC
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import classification_report, confusion_matrix
+myfile=pd.read_csv(r"E:\loan.csv")
+myfile['loan_status']=myfile['loan_status'].map({'Approved':1,'Denied':0})
+catcols=["gender","occupation","education_level","marital_status"]
+for i in catcols:
+    le=LabelEncoder()
+    myfile[i]=le.fit_transform(myfile[i])
+X=myfile.drop('loan_status',axis=1)
+y=myfile['loan_status']
+X_train,X_test,y_train,y_test=train_test_split(X,y,test_size=0.3, random_state=42)
+
+def manual_standardize(train, test):
+   
+    mean = np.mean(train, axis=0)
+    std = np.std(train, axis=0)
+    
+    train_scaled = (train - mean) / std
+    test_scaled = (test - mean) / std   
+    
+    return train_scaled, test_scaled
+
+
+X_train_scaled, X_test_scaled = manual_standardize(X_train, X_test)
+
+model = SVC(kernel="rbf", C=1.0, gamma="scale")
+model.fit(X_train,y_train)
+y_pred=model.predict(X_test)
+
+print("Confusion Matrix:\n", confusion_matrix(y_test, y_pred))
+print("\nClassification Repose", classification_report(y_test,y_pred))
