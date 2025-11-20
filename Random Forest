@@ -1,0 +1,27 @@
+import numpy as np 
+import pandas as pd 
+
+train_data=pd.read_csv("/kaggle/input/titanic/train.csv");
+test_data=pd.read_csv("/kaggle/input/titanic/test.csv")
+women=train_data.loc[train_data.Sex=='female'].Survived
+rate_women=sum(women)/len(women)
+men=train_data.loc[train_data.Sex=='male'].Survived
+rate_men=sum(men)/len(men)
+
+print(rate_men)
+print(rate_women)
+#random forest
+from sklearn.ensemble import RandomForestClassifier
+target=train_data["Survived"]
+features=["Pclass","Sex","SibSp","Parch"]
+train_data[features]
+#we can not train our models on strings so we need to convert 
+#these strings to numbers using get_dummies which is in pandas this 
+x=pd.get_dummies(train_data[features].fillna(-1))
+x_test=pd.get_dummies(test_data[features].fillna(-1))
+model=RandomForestClassifier(n_estimators=100,max_depth=5,random_state=1)
+model.fit(x,target)
+predictions=model.predict(x_test)
+output=pd.DataFrame({"PassengerId":test_data.PassengerId,'Survived':predictions})
+output.to_csv("my_submission.csv",index=False)
+output.head()
